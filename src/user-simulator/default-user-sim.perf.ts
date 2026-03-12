@@ -141,9 +141,12 @@ async function register(page: Page, config: Config, user: User) {
 	await delay(3000)
 	await page.type('input[name=username]', user.username)
 	await page.type('input[name=password]', user.password)
-	await page.click('button[name=register]')
+	await Promise.all([
+		page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 15000 }),
+		page.click('button[name=register]'),
+	])
 	console.log(`${user.username} registered.`)
-	await delay(3000)
+	await delay(1000)
 }
 
 async function visitHomepage(page: Page, config: Config) {
@@ -170,7 +173,7 @@ async function visitTimeline(page, config) {
 async function createTextPost(page: Page, config: Config, user: User, textPosts: TextPost[]) {
 	const post = textPosts[getRandomInt(textPosts.length)]
 	await page.goto(config.frontendUrl + '/')
-	await delay(3000)
+	await page.waitForSelector('textarea[id=postTextContent]', { timeout: 10000 })
 	await page.type('textarea[id=postTextContent]', post.text)
 	await page.click('button[name=createPostSubmit]')
 	console.log(`${user.username} posted text: '${post.text}'`)
