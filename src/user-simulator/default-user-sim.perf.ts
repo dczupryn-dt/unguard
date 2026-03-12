@@ -142,7 +142,10 @@ async function register(page: Page, config: Config, user: User) {
 	await page.type('input[name=username]', user.username)
 	await page.type('input[name=password]', user.password)
 	await Promise.all([
-		page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 15000 }),
+		page.waitForResponse(
+			(resp) => resp.url().includes('/api/auth/login') && resp.status() === 200,
+			{ timeout: 20000 },
+		),
 		page.click('button[name=register]'),
 	])
 	console.log(`${user.username} registered.`)
